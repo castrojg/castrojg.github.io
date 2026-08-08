@@ -512,6 +512,40 @@
   .contact .btn-ghost{border-color:#C9C0A8; color:var(--ink);}
   .contact .btn-ghost:hover{border-color:var(--ink);}
 
+  /* Email visible + copy button — solves the "no default mail app" problem */
+  .email-copy{
+    display:inline-flex;
+    align-items:center;
+    gap:0;
+    background:var(--ink);
+    border-radius:3px;
+    overflow:hidden;
+  }
+  .email-text{
+    color:var(--paper);
+    font-size:14px;
+    padding:14px 16px;
+    white-space:nowrap;
+  }
+  .btn-copy{
+    font-family:'JetBrains Mono', monospace;
+    font-size:13px;
+    font-weight:500;
+    background:var(--amber);
+    color:var(--ink);
+    border:none;
+    padding:14px 18px;
+    cursor:pointer;
+    transition:background .2s ease;
+  }
+  .btn-copy:hover{background:var(--amber-soft);}
+  .btn-copy.copied{background:var(--sage); color:var(--ink);}
+
+  @media (max-width:480px){
+    .email-text{font-size:12px; padding:12px 10px;}
+    .btn-copy{padding:12px 14px; font-size:12px;}
+  }
+
   footer{
     background:var(--paper);
     color:#7A745F;
@@ -710,11 +744,15 @@
     <h2>Have a delivery problem AI can't solve?</h2>
     <p>Twenty minutes, no pitch deck. Tell me what's stuck and I'll tell you honestly if I can help.</p>
     <div class="contact-ctas">
-      <!-- Replace with your real email or Calendly link -->
-      <a href="mailto:javiercastromdp@gmail.com" class="btn-primary">Email me</a>
+      <div class="email-copy">
+        <span class="email-text mono" id="emailText">javiercastromdp@gmail.com</span>
+        <button type="button" class="btn-copy" id="copyBtn" aria-label="Copy email address">Copy</button>
+      </div>
       <a href="https://www.linkedin.com/in/javi-castro/" target="_blank" rel="noopener" class="btn-ghost">LinkedIn ↗</a>
     </div>
-    <p class="mono" style="font-size:12px; color:#8A8367; margin-top:22px;">Usually replies within 1 business day.</p>
+    <p class="mono" style="font-size:12px; color:#8A8367; margin-top:14px;">
+      Or <a href="mailto:javiercastromdp@gmail.com" style="border-bottom:1px solid #8A8367;">open in your mail app</a> · Usually replies within 1 business day.
+    </p>
   </div>
 </section>
 
@@ -727,6 +765,32 @@
 </footer>
 
 <script>
+  // Copy email to clipboard — avoids the "choose an app" mailto friction
+  const copyBtn = document.getElementById('copyBtn');
+  const emailText = document.getElementById('emailText');
+  if (copyBtn && emailText) {
+    copyBtn.addEventListener('click', async () => {
+      const email = emailText.textContent.trim();
+      try {
+        await navigator.clipboard.writeText(email);
+      } catch (err) {
+        // Fallback for older browsers without Clipboard API
+        const temp = document.createElement('textarea');
+        temp.value = email;
+        document.body.appendChild(temp);
+        temp.select();
+        document.execCommand('copy');
+        document.body.removeChild(temp);
+      }
+      copyBtn.textContent = 'Copied ✓';
+      copyBtn.classList.add('copied');
+      setTimeout(() => {
+        copyBtn.textContent = 'Copy';
+        copyBtn.classList.remove('copied');
+      }, 2000);
+    });
+  }
+
   // Scroll progress bar — functional extension of the burndown metaphor
   const progressFill = document.getElementById('progressFill');
   function updateProgress() {
